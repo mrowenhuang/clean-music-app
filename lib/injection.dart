@@ -1,4 +1,5 @@
 import 'package:clean_music_app/common/playing_cubit/playing_cubit.dart';
+import 'package:clean_music_app/common/playing_feature_cubit/playing_feature_cubit.dart';
 import 'package:clean_music_app/features/music/data/repositories/music_respositories_impl.dart';
 import 'package:clean_music_app/features/music/data/datasources/local/local_datasource.dart';
 import 'package:clean_music_app/features/music/domain/repositories/music_repositories.dart';
@@ -18,6 +19,7 @@ Future<void> initializeDependecies() async {
   // ^ bloc & cubit
 
   sl.registerFactory(() => PlayingCubit(sl()));
+  sl.registerFactory(() => PlayingFeatureCubit(sl()));
   sl.registerFactory(() => MusicBloc(sl()));
 
   // ^ usecase

@@ -1,15 +1,19 @@
 import 'package:clean_music_app/common/playing_cubit/playing_cubit.dart';
+import 'package:clean_music_app/common/playing_feature_cubit/playing_feature_cubit.dart';
 import 'package:clean_music_app/core/config/app_theme.dart';
 import 'package:clean_music_app/features/music/presentation/bloc/music_bloc/music_bloc.dart';
 import 'package:clean_music_app/features/music/presentation/pages/home_pages.dart';
 import 'package:clean_music_app/injection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
 void main() async {
   runApp(const MyApp());
   await initializeDependecies();
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
@@ -29,9 +33,10 @@ class MyApp extends StatelessWidget {
           create: (context) => sl<MusicBloc>()..add(InitailizeMusicEvent()),
         ),
         BlocProvider(create: (context) => sl<PlayingCubit>()),
+        BlocProvider(create: (context) => sl<PlayingFeatureCubit>()),
       ],
       child: MaterialApp(
-        title: 'MyMusic',
+        title: 'My Music',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.appTheme(context),
         home: const HomePages(),
