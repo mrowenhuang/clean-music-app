@@ -4,4 +4,7 @@ import 'package:dartz/dartz.dart';
 
 abstract class MusicRepositories {
   Future<Either<ServerFailure,List<MusicEntities>>> initializeMusic();
+  Future<Either<ServerFailure,Unit>> addAlwaysPlayMusic(MusicEntities music);
+  Future<Either<ServerFailure,Unit>> deleteAlwaysPlayMusic(MusicEntities music);
+  Future<Either<ServerFailure,List<MusicEntities>>> getAlwaysPlayMusic();
 }

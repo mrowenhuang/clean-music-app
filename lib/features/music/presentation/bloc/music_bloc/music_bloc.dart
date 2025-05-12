@@ -23,13 +23,13 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
 
     response.fold(
       (failure) {
-        print(failure.message);
         emit(FailedInitializeMusicState(failure: failure.message));
       },
       (response) {
-
         emit(SuccessInitializeMusicState(music: response));
       },
     );
   }
+
+ 
 }

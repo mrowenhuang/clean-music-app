@@ -1,16 +1,19 @@
 import 'package:clean_music_app/common/playing_cubit/playing_cubit.dart';
 import 'package:clean_music_app/common/playing_feature_cubit/playing_feature_cubit.dart';
 import 'package:clean_music_app/core/config/app_theme.dart';
+import 'package:clean_music_app/features/music/presentation/bloc/always_play_music_bloc/always_play_bloc.dart';
 import 'package:clean_music_app/features/music/presentation/bloc/music_bloc/music_bloc.dart';
+import 'package:clean_music_app/features/music/presentation/bloc/search_bloc/search_bloc.dart';
 import 'package:clean_music_app/features/music/presentation/pages/home_pages.dart';
 import 'package:clean_music_app/injection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
 void main() async {
-  runApp(const MyApp());
+  await Hive.initFlutter();
   await initializeDependecies();
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -19,6 +22,7 @@ void main() async {
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
   );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -32,6 +36,11 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => sl<MusicBloc>()..add(InitailizeMusicEvent()),
         ),
+        BlocProvider(
+          create:
+              (context) => sl<AlwaysPlayBloc>()..add(GetAlwaysPlayMusicEvent()),
+        ),
+        BlocProvider(create: (context) => sl<SearchBloc>()),
         BlocProvider(create: (context) => sl<PlayingCubit>()),
         BlocProvider(create: (context) => sl<PlayingFeatureCubit>()),
       ],

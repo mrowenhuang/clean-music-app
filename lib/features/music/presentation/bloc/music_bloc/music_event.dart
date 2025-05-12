@@ -8,3 +8,4 @@ abstract class MusicEvent extends Equatable {
 }
 
 final class InitailizeMusicEvent extends MusicEvent {}
+
