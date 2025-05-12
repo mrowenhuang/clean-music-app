@@ -12,8 +12,16 @@ part 'playing_state.dart';
 
 class PlayingCubit extends Cubit<PlayingState> {
   final AudioPlayer _audioPlayer;
+  List<MusicEntities> _currentMusicList = [];
 
-  PlayingCubit(this._audioPlayer) : super(PlayingInitial());
+  PlayingCubit(this._audioPlayer) : super(PlayingInitial()) {
+    _audioPlayer.currentIndexStream.listen((index) {
+      if (index != null && _currentMusicList.isNotEmpty) {
+        emit(LoadingPlayingMusicState());
+        emit(SuccessPlayingMusicState(music: _currentMusicList, index: index));
+      }
+    });
+  }
 
   Future<Uri> getArtUriFromAsset(String assetPath) async {
     final byteData = await rootBundle.load(assetPath);
@@ -24,6 +32,7 @@ class PlayingCubit extends Cubit<PlayingState> {
 
   Future<void> playingMusic(List<MusicEntities> music, int index) async {
     emit(LoadingPlayingMusicState());
+    _currentMusicList = music;
     final artUri = await getArtUriFromAsset('assets/images/banner.png');
     final playlist = ConcatenatingAudioSource(
       children:
@@ -48,13 +57,7 @@ class PlayingCubit extends Cubit<PlayingState> {
       initialPosition: Duration.zero,
       preload: true,
     );
-    _audioPlayer.currentIndexStream.listen((currentIndex) {
-      if (currentIndex != null) {
-        emit(LoadingPlayingMusicState());
-        emit(SuccessPlayingMusicState(music: music, index: currentIndex));
-      }
-    });
-    emit(SuccessPlayingMusicState(music: music, index: index));
+
     await _audioPlayer.play();
   }
 

@@ -1,7 +1,9 @@
+import 'package:clean_music_app/common/menu_cubit/menu_cubit.dart';
 import 'package:clean_music_app/common/playing_cubit/playing_cubit.dart';
 import 'package:clean_music_app/common/playing_feature_cubit/playing_feature_cubit.dart';
 import 'package:clean_music_app/core/config/app_theme.dart';
 import 'package:clean_music_app/features/music/presentation/bloc/always_play_music_bloc/always_play_bloc.dart';
+import 'package:clean_music_app/features/music/presentation/bloc/favorite_bloc/favorite_bloc.dart';
 import 'package:clean_music_app/features/music/presentation/bloc/music_bloc/music_bloc.dart';
 import 'package:clean_music_app/features/music/presentation/bloc/search_bloc/search_bloc.dart';
 import 'package:clean_music_app/features/music/presentation/pages/home_pages.dart';
@@ -40,8 +42,12 @@ class MyApp extends StatelessWidget {
           create:
               (context) => sl<AlwaysPlayBloc>()..add(GetAlwaysPlayMusicEvent()),
         ),
+        BlocProvider(
+          create: (context) => sl<FavoriteBloc>()..add(GetFavoriteEvent()),
+        ),
         BlocProvider(create: (context) => sl<SearchBloc>()),
         BlocProvider(create: (context) => sl<PlayingCubit>()),
+        BlocProvider(create: (context) => sl<MenuCubit>()),
         BlocProvider(create: (context) => sl<PlayingFeatureCubit>()),
       ],
       child: MaterialApp(

@@ -2,6 +2,7 @@ import 'package:clean_music_app/common/navigator/app_navigator.dart';
 import 'package:clean_music_app/common/playing_cubit/playing_cubit.dart';
 import 'package:clean_music_app/core/config/app_color.dart';
 import 'package:clean_music_app/features/music/presentation/bloc/always_play_music_bloc/always_play_bloc.dart';
+import 'package:clean_music_app/features/music/presentation/bloc/favorite_bloc/favorite_bloc.dart';
 import 'package:clean_music_app/features/music/presentation/bloc/search_bloc/search_bloc.dart';
 import 'package:clean_music_app/features/music/presentation/pages/home_pages.dart';
 import 'package:flutter/cupertino.dart';
@@ -75,175 +76,193 @@ class SearchPages extends StatelessWidget {
                           itemCount: state.music.length,
                           itemBuilder: (context, index) {
                             final data = state.music[index];
-                            return GestureDetector(
-                              onTap: () {
-                                context.read<PlayingCubit>().playingMusic(
-                                  state.music,
-                                  index,
-                                );
-                              },
-                              child: Container(
-                                height: 80,
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: AppColor.secondary,
-                                  borderRadius: BorderRadius.circular(10),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      blurRadius: 4,
-                                      color: Colors.black45,
-                                      offset: Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Container(
-                                          height: 40,
-                                          width: 40,
-                                          decoration: BoxDecoration(
-                                            color: AppColor.black,
-                                            borderRadius: BorderRadius.circular(
-                                              5,
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: GestureDetector(
+                                onTap: () async{
+                                  await context.read<PlayingCubit>().playingMusic(
+                                    state.music,
+                                    index,
+                                  );
+                                },
+                                child: Container(
+                                  height: 80,
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.secondary,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        blurRadius: 4,
+                                        color: Colors.black45,
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            height: 40,
+                                            width: 40,
+                                            decoration: BoxDecoration(
+                                              color: AppColor.black,
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            child: Icon(
+                                              Icons.music_note,
+                                              color: AppColor.white,
                                             ),
                                           ),
-                                          child: Icon(
-                                            Icons.music_note,
-                                            color: AppColor.white,
-                                          ),
-                                        ),
-                                        SizedBox(width: 15),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            SizedBox(
-                                              width: size.width / 2,
-                                              child: Text(
-                                                data.title.toString(),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
+                                          SizedBox(width: 15),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              SizedBox(
+                                                width: size.width / 2,
+                                                child: Text(
+                                                  data.title.toString(),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            SizedBox(
-                                              width: size.width / 2,
-                                              child: Text(
-                                                data.artist.toString(),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(fontSize: 11),
+                                              SizedBox(
+                                                width: size.width / 2,
+                                                child: Text(
+                                                  data.artist.toString(),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        showModalBottomSheet(
-                                          context: context,
-                                          enableDrag: true,
-                                          showDragHandle: true,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(20),
-                                              topRight: Radius.circular(20),
-                                            ),
+                                            ],
                                           ),
-                                          useSafeArea: true,
-
-                                          builder: (context) {
-                                            return Container(
-                                              height: 200,
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 20,
+                                        ],
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                            context: context,
+                                            enableDrag: true,
+                                            showDragHandle: true,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(20),
+                                                topRight: Radius.circular(20),
                                               ),
-                                              child: Column(
-                                                children: [
-                                                  Text(
-                                                    "Menu",
-                                                    style: TextStyle(
-                                                      fontSize: 18,
-                                                    ),
-                                                  ),
-                                                  ElevatedButton(
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor:
-                                                          AppColor.secondary,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              10,
-                                                            ),
-                                                      ),
-                                                      fixedSize: Size(
-                                                        size.width,
-                                                        50,
-                                                      ),
-                                                    ),
-                                                    onPressed: () {
-                                                      context
-                                                          .read<
-                                                            AlwaysPlayBloc
-                                                          >()
-                                                          .add(
-                                                            AddAlwaysPlayMusicEvent(
-                                                              music: data,
-                                                            ),
-                                                          );
+                                            ),
+                                            useSafeArea: true,
 
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: Text(
-                                                      "Add To Always Play",
+                                            builder: (context) {
+                                              return Container(
+                                                height: 200,
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 20,
+                                                ),
+                                                child: Column(
+                                                  children: [
+                                                    Text(
+                                                      "Menu",
                                                       style: TextStyle(
-                                                        color: AppColor.black,
+                                                        fontSize: 18,
                                                       ),
                                                     ),
-                                                  ),
-                                                  SizedBox(height: 15),
-                                                  ElevatedButton(
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor:
-                                                          AppColor.secondary,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              10,
-                                                            ),
+                                                    SizedBox(height: 20),
+                                                    ElevatedButton(
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor:
+                                                            AppColor.secondary,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                10,
+                                                              ),
+                                                        ),
+                                                        fixedSize: Size(
+                                                          size.width,
+                                                          50,
+                                                        ),
                                                       ),
-                                                      fixedSize: Size(
-                                                        size.width,
-                                                        50,
+                                                      onPressed: () {
+                                                        context
+                                                            .read<
+                                                              AlwaysPlayBloc
+                                                            >()
+                                                            .add(
+                                                              AddAlwaysPlayMusicEvent(
+                                                                music: data,
+                                                              ),
+                                                            );
+
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: Text(
+                                                        "Add To Always Play",
+                                                        style: TextStyle(
+                                                          color: AppColor.black,
+                                                        ),
                                                       ),
                                                     ),
-                                                    onPressed: () {},
-                                                    child: Text(
-                                                      "Make Favorite",
-                                                      style: TextStyle(
-                                                        color: AppColor.black,
+                                                    SizedBox(height: 15),
+                                                    ElevatedButton(
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor:
+                                                            AppColor.secondary,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                10,
+                                                              ),
+                                                        ),
+                                                        fixedSize: Size(
+                                                          size.width,
+                                                          50,
+                                                        ),
+                                                      ),
+                                                      onPressed: () {
+                                                        context
+                                                            .read<
+                                                              FavoriteBloc
+                                                            >()
+                                                            .add(
+                                                              AddFavoriteEvent(
+                                                                music: data,
+                                                              ),
+                                                            );
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: Text(
+                                                        "Make Favorite",
+                                                        style: TextStyle(
+                                                          color: AppColor.black,
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      },
-                                      icon: Icon(Icons.more_vert_rounded),
-                                    ),
-                                  ],
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                        icon: Icon(Icons.more_vert_rounded),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             );

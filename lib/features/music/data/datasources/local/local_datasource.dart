@@ -7,12 +7,13 @@ import 'package:permission_handler/permission_handler.dart';
 abstract class LocalDatasource {
   Future<List<SongModel>> getLocalMusic();
   Future<List<MusicModel>> getAlwaysPlayMusic();
+  Future<List<MusicModel>> getFavoriteMusic();
 }
 
 class LocalDatasourceImpl implements LocalDatasource {
   final OnAudioQuery _audioQuery;
   final Box<Object> _alwaysBox;
-  final Box<MusicModel> _favBox;
+  final Box<Object> _favBox;
 
   LocalDatasourceImpl(this._audioQuery, this._alwaysBox, this._favBox);
 
@@ -42,8 +43,22 @@ class LocalDatasourceImpl implements LocalDatasource {
     try {
       final raw = _alwaysBox.get('always_play');
       if (raw != null && raw is List) {
-        return raw
-            .cast<MusicModel>(); 
+        return raw.cast<MusicModel>();
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print("Error reading Hive: $e");
+      throw ServerFailure(message: e.toString());
+    }
+  }
+
+  @override
+  Future<List<MusicModel>> getFavoriteMusic() async {
+    try {
+      final raw = _favBox.get('favorite');
+      if (raw != null && raw is List) {
+        return raw.cast<MusicModel>();
       } else {
         return [];
       }

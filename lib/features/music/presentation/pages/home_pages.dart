@@ -1,10 +1,12 @@
 import 'dart:math';
 
+import 'package:clean_music_app/common/menu_cubit/menu_cubit.dart';
 import 'package:clean_music_app/common/navigator/app_navigator.dart';
 import 'package:clean_music_app/common/playing_cubit/playing_cubit.dart';
 import 'package:clean_music_app/common/playing_feature_cubit/playing_feature_cubit.dart';
 import 'package:clean_music_app/core/config/app_color.dart';
 import 'package:clean_music_app/features/music/presentation/bloc/always_play_music_bloc/always_play_bloc.dart';
+import 'package:clean_music_app/features/music/presentation/bloc/favorite_bloc/favorite_bloc.dart';
 import 'package:clean_music_app/features/music/presentation/bloc/music_bloc/music_bloc.dart';
 import 'package:clean_music_app/features/music/presentation/pages/search_pages.dart';
 import 'package:clean_music_app/injection.dart';
@@ -91,6 +93,7 @@ class HomePages extends StatelessWidget {
                       builder: (context, state) {
                         final width = max((size.width / 2) - 20, 150.0);
                         if (state is SuccessPlayingMusicState) {
+
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -142,9 +145,7 @@ class HomePages extends StatelessWidget {
                                       width: 200,
                                       height: 20,
                                       child: Marquee(
-                                        text:
-                                            state.music[state.index].title
-                                                .toString(),
+                                        text: state.music[state.index].title.toString(),
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: Colors.black,
@@ -326,8 +327,8 @@ class HomePages extends StatelessWidget {
                                             10,
                                           ),
                                           child: GestureDetector(
-                                            onTap: () {
-                                              context
+                                            onTap: () async {
+                                              await context
                                                   .read<PlayingCubit>()
                                                   .playingMusic(
                                                     state.music,
@@ -381,231 +382,521 @@ class HomePages extends StatelessWidget {
 
             // Favorite Button
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: ElevatedButton.icon(
-                    onPressed: () {},
-                    label: Text('Favorite', style: TextStyle(fontSize: 18)),
-                    icon: Icon(Icons.screen_rotation_alt_rounded),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+              child: BlocBuilder<MenuCubit, bool>(
+                bloc: context.read<MenuCubit>(),
+                builder: (context, value) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          context.read<MenuCubit>().changeMenu(!value);
+                        },
+                        label: Text(
+                          value ? 'Favorite' : 'My Music',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        icon: Icon(Icons.screen_rotation_alt_rounded),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
 
             // My Music Title
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Text('My Music', style: TextStyle(fontSize: 18)),
-                    Icon(Icons.screen_rotation_alt_rounded),
-                  ],
-                ),
+              child: BlocBuilder<MenuCubit, bool>(
+                bloc: context.read<MenuCubit>(),
+                builder: (context, value) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      children: [
+                        Text(
+                          value ? 'My Music' : 'Favorite',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        Icon(Icons.screen_rotation_alt_rounded),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
             SliverToBoxAdapter(child: SizedBox(height: 10)),
 
-            // Music List (Sliver)
-            BlocBuilder<MusicBloc, MusicState>(
-              bloc: context.read<MusicBloc>(),
-              builder: (context, state) {
-                if (state is LoadingInitializeMusicState) {
-                  return SliverFillRemaining(
-                    child: Center(child: CupertinoActivityIndicator()),
-                  );
-                } else if (state is SuccessInitializeMusicState) {
-                  return SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final data = state.music[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5,
-                        ),
-                        child: GestureDetector(
-                          onTap: () {
-                            context.read<PlayingCubit>().playingMusic(
-                              state.music,
-                              index,
-                            );
-                          },
-                          child: Container(
-                            height: 80,
-                            padding: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppColor.secondary,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  blurRadius: 4,
-                                  color: Colors.black45,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      height: 40,
-                                      width: 40,
-                                      decoration: BoxDecoration(
-                                        color: AppColor.black,
-                                        borderRadius: BorderRadius.circular(5),
+            BlocBuilder<MenuCubit, bool>(
+              builder: (context, value) {
+                if (value) {
+                  // ^ my music bloc
+
+                  return BlocBuilder<MusicBloc, MusicState>(
+                    bloc: context.read<MusicBloc>(),
+                    builder: (context, state) {
+                      if (state is LoadingInitializeMusicState) {
+                        return SliverFillRemaining(
+                          child: Center(child: CupertinoActivityIndicator()),
+                        );
+                      } else if (state is SuccessInitializeMusicState) {
+                        return SliverList(
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            final data = state.music[index];
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 5,
+                              ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.read<PlayingCubit>().playingMusic(
+                                    state.music,
+                                    index,
+                                  );
+                                },
+                                child: Container(
+                                  height: 80,
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.secondary,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        blurRadius: 4,
+                                        color: Colors.black45,
+                                        offset: Offset(0, 4),
                                       ),
-                                      child: Icon(
-                                        Icons.music_note,
-                                        color: AppColor.white,
-                                      ),
-                                    ),
-                                    SizedBox(width: 15),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          width: size.width / 2,
-                                          child: Text(
-                                            data.title.toString(),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            height: 40,
+                                            width: 40,
+                                            decoration: BoxDecoration(
+                                              color: AppColor.black,
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            child: Icon(
+                                              Icons.music_note,
+                                              color: AppColor.white,
                                             ),
                                           ),
-                                        ),
-                                        SizedBox(
-                                          width: size.width / 2,
-                                          child: Text(
-                                            data.artist.toString(),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(fontSize: 11),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    showModalBottomSheet(
-                                      context: context,
-                                      enableDrag: true,
-                                      showDragHandle: true,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(20),
-                                          topRight: Radius.circular(20),
-                                        ),
-                                      ),
-                                      useSafeArea: true,
-
-                                      builder: (context) {
-                                        return Container(
-                                          height: 200,
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 20,
-                                          ),
-                                          child: Column(
+                                          SizedBox(width: 15),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
-                                              Text(
-                                                "Menu",
-                                                style: TextStyle(fontSize: 18),
-                                              ),
-                                              ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      AppColor.secondary,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          10,
-                                                        ),
-                                                  ),
-                                                  fixedSize: Size(
-                                                    size.width,
-                                                    50,
-                                                  ),
-                                                ),
-                                                onPressed: () {
-                                                  context
-                                                      .read<AlwaysPlayBloc>()
-                                                      .add(
-                                                        AddAlwaysPlayMusicEvent(
-                                                          music: data,
-                                                        ),
-                                                      );
-
-                                                  Navigator.pop(context);
-                                                },
+                                              SizedBox(
+                                                width: size.width / 2,
                                                 child: Text(
-                                                  "Add To Always Play",
+                                                  data.title.toString(),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: TextStyle(
-                                                    color: AppColor.black,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
                                               ),
-                                              SizedBox(height: 15),
-                                              ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      AppColor.secondary,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          10,
-                                                        ),
-                                                  ),
-                                                  fixedSize: Size(
-                                                    size.width,
-                                                    50,
-                                                  ),
-                                                ),
-                                                onPressed: () {},
+                                              SizedBox(
+                                                width: size.width / 2,
                                                 child: Text(
-                                                  "Make Favorite",
+                                                  data.artist.toString(),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: TextStyle(
-                                                    color: AppColor.black,
+                                                    fontSize: 11,
                                                   ),
                                                 ),
                                               ),
                                             ],
                                           ),
-                                        );
-                                        // return Container();
-                                      },
-                                    );
-                                  },
-                                  icon: Icon(Icons.more_vert_rounded),
+                                        ],
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                            context: context,
+                                            enableDrag: true,
+                                            showDragHandle: true,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(20),
+                                                topRight: Radius.circular(20),
+                                              ),
+                                            ),
+                                            useSafeArea: true,
+
+                                            builder: (context) {
+                                              return Container(
+                                                height: 200,
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 20,
+                                                ),
+                                                child: Column(
+                                                  children: [
+                                                    Text(
+                                                      "Menu",
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 20),
+                                                    ElevatedButton(
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor:
+                                                            AppColor.secondary,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                10,
+                                                              ),
+                                                        ),
+                                                        fixedSize: Size(
+                                                          size.width,
+                                                          50,
+                                                        ),
+                                                      ),
+                                                      onPressed: () {
+                                                        context
+                                                            .read<
+                                                              AlwaysPlayBloc
+                                                            >()
+                                                            .add(
+                                                              AddAlwaysPlayMusicEvent(
+                                                                music: data,
+                                                              ),
+                                                            );
+
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: Text(
+                                                        "Add To Always Play",
+                                                        style: TextStyle(
+                                                          color: AppColor.black,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 15),
+                                                    ElevatedButton(
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor:
+                                                            AppColor.secondary,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                10,
+                                                              ),
+                                                        ),
+                                                        fixedSize: Size(
+                                                          size.width,
+                                                          50,
+                                                        ),
+                                                      ),
+                                                      onPressed: () {
+                                                        context
+                                                            .read<
+                                                              FavoriteBloc
+                                                            >()
+                                                            .add(
+                                                              AddFavoriteEvent(
+                                                                music: data,
+                                                              ),
+                                                            );
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: Text(
+                                                        "Make Favorite",
+                                                        style: TextStyle(
+                                                          color: AppColor.black,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                        icon: Icon(Icons.more_vert_rounded),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }, childCount: state.music.length),
-                  );
-                } else if (state is FailedInitializeMusicState) {
-                  return SliverFillRemaining(
-                    child: Center(child: Text("Something went wrong")),
+                              ),
+                            );
+                          }, childCount: state.music.length),
+                        );
+                      } else if (state is FailedInitializeMusicState) {
+                        return SliverFillRemaining(
+                          child: Center(child: Text("Something went wrong")),
+                        );
+                      } else {
+                        return SliverToBoxAdapter(child: SizedBox());
+                      }
+                    },
                   );
                 } else {
-                  return SliverToBoxAdapter(child: SizedBox());
+                  // ^ my favorite bloc
+
+                  return BlocConsumer<FavoriteBloc, FavoriteState>(
+                    listener: (context, state) {
+                      if (state is SuccessAddFavoriteState) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(state.message)));
+                      } else if (state is SuccessDeleteFavoriteState) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(state.message)));
+                      } else if (state is FailedAddFavoriteState) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(state.failure)));
+                      } else if (state is FailedDeleteFavoriteState) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(state.failure)));
+                      }
+                    },
+                    bloc: context.read<FavoriteBloc>(),
+                    builder: (context, state) {
+                      if (state is LoadingFavoriteState) {
+                        return SliverFillRemaining(
+                          child: Center(child: CupertinoActivityIndicator()),
+                        );
+                      } else if (state is SuccessGetFavoriteState) {
+                        return SliverList(
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            final data = state.music[index];
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 5,
+                              ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.read<PlayingCubit>().playingMusic(
+                                    state.music,
+                                    index,
+                                  );
+                                },
+                                child: Container(
+                                  height: 80,
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.secondary,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        blurRadius: 4,
+                                        color: Colors.black45,
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            height: 40,
+                                            width: 40,
+                                            decoration: BoxDecoration(
+                                              color: AppColor.black,
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            child: Icon(
+                                              Icons.music_note,
+                                              color: AppColor.white,
+                                            ),
+                                          ),
+                                          SizedBox(width: 15),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              SizedBox(
+                                                width: size.width / 2,
+                                                child: Text(
+                                                  data.title.toString(),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: size.width / 2,
+                                                child: Text(
+                                                  data.artist.toString(),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                            context: context,
+                                            enableDrag: true,
+                                            showDragHandle: true,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(20),
+                                                topRight: Radius.circular(20),
+                                              ),
+                                            ),
+                                            useSafeArea: true,
+
+                                            builder: (context) {
+                                              return Container(
+                                                height: 200,
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 20,
+                                                ),
+                                                child: Column(
+                                                  children: [
+                                                    Text(
+                                                      "Menu",
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 20),
+                                                    ElevatedButton(
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor:
+                                                            AppColor.secondary,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                10,
+                                                              ),
+                                                        ),
+                                                        fixedSize: Size(
+                                                          size.width,
+                                                          50,
+                                                        ),
+                                                      ),
+                                                      onPressed: () {
+                                                        context
+                                                            .read<
+                                                              AlwaysPlayBloc
+                                                            >()
+                                                            .add(
+                                                              AddAlwaysPlayMusicEvent(
+                                                                music: data,
+                                                              ),
+                                                            );
+
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: Text(
+                                                        "Add To Always Play",
+                                                        style: TextStyle(
+                                                          color: AppColor.black,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 15),
+                                                    ElevatedButton(
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor:
+                                                            AppColor.secondary,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                10,
+                                                              ),
+                                                        ),
+                                                        fixedSize: Size(
+                                                          size.width,
+                                                          50,
+                                                        ),
+                                                      ),
+                                                      onPressed: () {
+                                                        context
+                                                            .read<
+                                                              FavoriteBloc
+                                                            >()
+                                                            .add(
+                                                              DeleteFavoriteEvent(
+                                                                music: data,
+                                                              ),
+                                                            );
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: Text(
+                                                        "Remove From Favorite",
+                                                        style: TextStyle(
+                                                          color: AppColor.black,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                              // return Container();
+                                            },
+                                          );
+                                        },
+                                        icon: Icon(Icons.more_vert_rounded),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          }, childCount: state.music.length),
+                        );
+                      } else if (state is FailedGetFavoriteState) {
+                        return SliverFillRemaining(
+                          child: Center(child: Text("Something went wrong")),
+                        );
+                      } else {
+                        return SliverToBoxAdapter(child: SizedBox());
+                      }
+                    },
+                  );
                 }
               },
             ),

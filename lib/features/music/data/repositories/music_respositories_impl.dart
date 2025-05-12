@@ -9,8 +9,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 class MusicRespositoriesImpl extends MusicRepositories {
   final LocalDatasource _localDatasource;
   final Box<Object> _alwaysBox;
-  final Box<MusicModel> _favBox;
+  final Box<Object> _favBox;
   List<MusicModel> alwaysData = [];
+  List<MusicModel> favData = [];
 
   MusicRespositoriesImpl(this._localDatasource, this._alwaysBox, this._favBox);
 
@@ -72,6 +73,51 @@ class MusicRespositoriesImpl extends MusicRepositories {
       alwaysData.removeWhere((element) => element.id == music.id);
       await _alwaysBox.put('always_play', alwaysData);
       return right(unit);
+    } catch (e) {
+      return left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<ServerFailure, Unit>> addFavoriteMusic(
+    MusicEntities music,
+  ) async {
+    try {
+      final alreadyExists = favData.any((element) => element.id == music.id);
+
+      if (!alreadyExists) {
+        favData.add(MusicModel.fromEntity(music));
+        await _favBox.put('favorite', favData);
+        return right(unit);
+      } else {
+        return left(ServerFailure(message: "Music already exists"));
+      }
+    } catch (e) {
+      return left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<ServerFailure, Unit>> deleteFavoriteMusic(
+    MusicEntities music,
+  ) async {
+    try {
+      favData.removeWhere((element) => element.id == music.id);
+      await _favBox.put('always_play', favData);
+      return right(unit);
+    } catch (e) {
+      return left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<ServerFailure, List<MusicEntities>>> getFavoriteMusic() async {
+    try {
+      final response = await _localDatasource.getFavoriteMusic();
+
+      favData = response;
+
+      return right(response);
     } catch (e) {
       return left(ServerFailure(message: e.toString()));
     }
