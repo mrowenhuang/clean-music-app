@@ -1,3 +1,4 @@
+import 'package:clean_music_app/common/cubit/theme_cubit.dart';
 import 'package:clean_music_app/common/menu_cubit/menu_cubit.dart';
 import 'package:clean_music_app/common/playing_cubit/playing_cubit.dart';
 import 'package:clean_music_app/common/playing_feature_cubit/playing_feature_cubit.dart';
@@ -36,6 +37,7 @@ Future<void> initializeDependecies() async {
 
   sl.registerFactory(() => PlayingCubit(sl()));
   sl.registerFactory(() => MenuCubit());
+  sl.registerFactory(() => ThemeCubit());
   sl.registerFactory(() => PlayingFeatureCubit(sl()));
   sl.registerFactory(() => MusicBloc(sl()));
   sl.registerFactory(() => AlwaysPlayBloc(sl(), sl(), sl()));

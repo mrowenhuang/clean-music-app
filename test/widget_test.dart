@@ -7,10 +7,7 @@
 
 import 'package:clean_music_app/features/music/data/datasources/local/local_datasource.dart';
 import 'package:clean_music_app/injection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 
-import 'package:clean_music_app/main.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 void main() async {

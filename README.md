@@ -1,16 +1,25 @@
-# clean_music_app
+# 🎵 Music App
 
-A new Flutter project.
+Music App is a Flutter-based mobile application designed for playing local audio files. Users can search for songs, mark favorites, and enjoy music seamlessly. Built with clean architecture, this app ensures a well-structured and scalable codebase.
 
-## Getting Started
+## ✨ Features
 
-This project is a starting point for a Flutter application.
+- 🎧 **Play Local Music**: Stream audio directly from local storage with simple playback controls.
+- 🔍 **Search Songs**: Quickly search through your music library by title.
+- ❤️ **Favorites**: Add or remove songs from your favorites list for easy access.
+- 🧠 **State Management with BLoC**: Reactive state handling using BLoC pattern for performance and maintainability.
+- 🧱 **Clean Architecture**: Separated layers (presentation, domain, data) for better testability and scalability.
+- 📦 **Local Storage with Hive**: Efficient and lightweight local storage solution for saving songs and favorites.
 
-A few resources to get you started if this is your first Flutter project:
+## 🖼️ Screenshots
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+| Home | Light | Dark |
+|------|--------|-----------|
+| ![Home](./assets/screenshots/shot(3).png) | ![Player](./assets/screenshots/shot(4).png) | ![Favorites](./assets/screenshots/shot(5).png) |
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🛠️ Tech Stack
+
+- 💙 **Flutter**
+- 🧠 **BLoC (flutter_bloc)**
+- 📦 **Hive** (for local storage)
+- 📐 **Clean Architecture**

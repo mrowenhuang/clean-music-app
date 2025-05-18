@@ -1,3 +1,4 @@
+import 'package:clean_music_app/common/cubit/theme_cubit.dart';
 import 'package:clean_music_app/common/menu_cubit/menu_cubit.dart';
 import 'package:clean_music_app/common/playing_cubit/playing_cubit.dart';
 import 'package:clean_music_app/common/playing_feature_cubit/playing_feature_cubit.dart';
@@ -6,7 +7,7 @@ import 'package:clean_music_app/features/music/presentation/bloc/always_play_mus
 import 'package:clean_music_app/features/music/presentation/bloc/favorite_bloc/favorite_bloc.dart';
 import 'package:clean_music_app/features/music/presentation/bloc/music_bloc/music_bloc.dart';
 import 'package:clean_music_app/features/music/presentation/bloc/search_bloc/search_bloc.dart';
-import 'package:clean_music_app/features/music/presentation/pages/home_pages.dart';
+import 'package:clean_music_app/features/music/presentation/pages/home/home_pages.dart';
 import 'package:clean_music_app/injection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,10 +16,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await initializeDependecies();
-  WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
@@ -48,13 +50,22 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => sl<SearchBloc>()),
         BlocProvider(create: (context) => sl<PlayingCubit>()),
         BlocProvider(create: (context) => sl<MenuCubit>()),
+        BlocProvider(create: (context) => sl<ThemeCubit>()),
         BlocProvider(create: (context) => sl<PlayingFeatureCubit>()),
       ],
-      child: MaterialApp(
-        title: 'My Music',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.appTheme(context),
-        home: const HomePages(),
+      child: BlocBuilder<ThemeCubit, bool>(
+        builder: (context, value) {
+          return MaterialApp(
+            title: 'My Music',
+            debugShowCheckedModeBanner: false,
+            theme:
+                value
+                    ? AppTheme.appTheme(context)
+                    : ThemeData.dark(useMaterial3: false),
+
+            home: const HomePages(),
+          );
+        },
       ),
     );
   }

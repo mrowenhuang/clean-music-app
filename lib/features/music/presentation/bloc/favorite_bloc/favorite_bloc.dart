@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:clean_music_app/features/music/domain/entities/music_entities.dart';
-import 'package:clean_music_app/features/music/domain/repositories/music_repositories.dart';
 import 'package:clean_music_app/features/music/domain/usecases/favorite_music_add.dart';
 import 'package:clean_music_app/features/music/domain/usecases/favorite_music_delete.dart';
 import 'package:clean_music_app/features/music/domain/usecases/favorite_music_get.dart';
