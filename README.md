@@ -15,7 +15,7 @@ Music App is a Flutter-based mobile application designed for playing local audio
 
 | Home | Light | Dark |
 |------|--------|-----------|
-| ![Home](./assets/screenshots/shot(3).png) | ![Player](./assets/screenshots/shot(4).png) | ![Favorites](./assets/screenshots/shot(5).png) |
+| ![Home](./assets/screenshots/Shot(3).png) | ![Player](./assets/screenshots/Shot(4).png) | ![Favorites](./assets/screenshots/Shot(5).png) |
 
 ## 🛠️ Tech Stack
 
